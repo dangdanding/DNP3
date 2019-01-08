@@ -1,6 +1,8 @@
 #!/usr/bin/python
+# -*- coding: UTF-8 -*-
 import getopt,sys,optparse
 from socket import *
+from binascii import hexlify, unhexlify
 
 HOST = "127.0.0.1"
 PORT = 20000
@@ -8,7 +10,10 @@ BUFSIZ = 1024
 
 DEBUG=1
 
+ReadRequest="056405c903000400bd71"
+
 def usage():
+    print(sys.argv[0])
     print(u"""
     -h / --help :help
     -i / --ip :ip address
@@ -37,7 +42,7 @@ def main(argv):
              PORT= arg
              print  ("Destination PORT: %s"% PORT)
 
-    debug()
+    #debug()
  
     try:
         tcpCliSock = socket(AF_INET, SOCK_STREAM)
@@ -53,7 +58,7 @@ def main(argv):
         print  ("connect to target %s: %s error: %s" % (HOST, PORT, e))
  
     while True:
-        data = input("> ")
+        data = raw_input("> ")
         if not data:
             break
  
