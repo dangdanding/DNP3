@@ -1,7 +1,9 @@
 #!/usr/bin/python
 from socket import *
-from time import ctime
+from time import time
 from binascii import hexlify, unhexlify
+from datetime import datetime,timedelta
+
 HOST = ""
 PORT = 20000
 BUFSIZ = 1024
@@ -26,13 +28,11 @@ def main():
     while True:
         #print("waiting for connection...")
         tcpCliSock, addr = tcpSerSock.accept()
-        #print("connected from :", addr)
  
         while True:
             data = tcpCliSock.recv(BUFSIZ)
             if not data:
                 break
-            content = '[%s] %s' % (bytes(ctime()), data)
             rcv_msg = hexlify(data)
             print("Received PDU from %s: %s" % (addr[0], rcv_msg))
  

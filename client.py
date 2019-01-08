@@ -61,6 +61,7 @@ def main(argv):
     print  ("sending PDU to target %s: %s"%(HOST, ReadRequest))
     tcpCliSock.sendall((msg))
  
+    str1 = raw_input('> ')
     tcpCliSock.close()
 
 if __name__ == "__main__":
