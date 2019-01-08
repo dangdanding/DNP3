@@ -57,16 +57,9 @@ def main(argv):
     except error, e:
         print  ("connect to target %s: %s error: %s" % (HOST, PORT, e))
  
-    while True:
-        data = raw_input("> ")
-        if not data:
-            break
- 
-        tcpCliSock.send(data.encode("utf8"))
-        data = tcpCliSock.recv(BUFSIZ)
-        if not data:
-            break
-        print(data.decode("utf-8"))
+    msg = unhexlify(ReadRequest)
+    print  ("msg: %s"%msg)
+    tcpCliSock.sendall((msg))
  
     tcpCliSock.close()
 
