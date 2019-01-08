@@ -1,6 +1,7 @@
 #!/usr/bin/python
 from socket import *
 from time import ctime
+from binascii import hexlify, unhexlify
 HOST = ""
 PORT = 20000
 BUFSIZ = 1024
