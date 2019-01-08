@@ -20,8 +20,9 @@ while True:
         if not data:
             break
         content = '[%s] %s' % (bytes(ctime()), data)
-        print(data)
-        print(type(content))
+        rcv_msg = hexlify(data)
+        print(rcv_msg)
+        print(type(rcv_msg))
         #tcpCliSock.send(content.encode("utf-8"))
  
     tcpCliSock.close()
