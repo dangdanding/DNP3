@@ -58,7 +58,7 @@ def main(argv):
         print  ("connect to target %s: %s error: %s" % (HOST, PORT, e))
  
     msg = unhexlify(ReadRequest)
-    print  ("msg: %s"%msg)
+    print  ("sending PDU to target %s: %s"%(HOST, ReadRequest))
     tcpCliSock.sendall((msg))
  
     tcpCliSock.close()
