@@ -55,11 +55,15 @@ def main(argv):
         print  ("HOST IP address error: %s" % e)
         sys.exit(1)
     except error, e:
-        print  ("connect to target %s: %s error: %s" % (HOST, PORT, e))
+        print  ("Connect to target %s: %s error: %s" % (HOST, PORT, e))
  
-    msg = unhexlify(ReadRequest)
-    print  ("sending PDU to target %s: %s"%(HOST, ReadRequest))
-    tcpCliSock.sendall((msg))
+    #sending request
+    print  ("Sending Link Status Request to Source %s: %s"%(HOST, ReadRequest))
+    tcpCliSock.sendall(unhexlify(ReadRequest))
+
+    #get response
+    resp = tcpCliSock.recv(BUFSIZ)
+    print("Received Link Status Response from %s: %s" % (HOST, resp.encode('hex')))
  
     str1 = raw_input('> ')
     tcpCliSock.close()

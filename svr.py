@@ -10,6 +10,7 @@ BUFSIZ = 1024
 ADDR = (HOST, PORT)
  
 ReadRequest="056405c903000400bd71"
+ResponseLinkStatus="0564000b040003000000"
 
 def debug():
     if DEBUG == 1:
@@ -30,11 +31,13 @@ def main():
         tcpCliSock, addr = tcpSerSock.accept()
  
         while True:
-            data = tcpCliSock.recv(BUFSIZ)
-            if not data:
+            rcv_msg = tcpCliSock.recv(BUFSIZ)
+            if not rcv_msg:
                 break
-            rcv_msg = hexlify(data)
-            print("Received PDU from %s: %s" % (addr[0], rcv_msg))
+            print("Received Link Status Request from %s: %s" % (addr[0], hexlify(rcv_msg)))
+            if hexlify(rcv_msg) == ReadRequest:
+                print ("Sending Link Status Response to %s: %s" %(addr[0],ResponseLinkStatus))
+                tcpCliSock.sendall(unhexlify(ResponseLinkStatus))
  
         tcpCliSock.close()
 
