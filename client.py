@@ -11,6 +11,7 @@ BUFSIZ = 1024
 DEBUG=1
 
 ReadRequest="056405c903000400bd71"
+LinkReset=""
 
 def usage():
     print(sys.argv[0])
