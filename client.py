@@ -4,14 +4,24 @@ import getopt,sys,optparse
 from socket import *
 from binascii import hexlify, unhexlify
 
+DEBUG = 1
+
+ReadRequest = "056405c903000400bd71"
+LinkReset = ""
+
+dnp3_HealthCheck="\x05\x64\x05\xc0\x01\x00\x00\x04\xe9\x21" 
+dnp3_WarmRestart="\x05\x64\x08\xc4\x01\x00\x02\x00\x39\x0d\xde\xce\x0e\x6c\xd1" 
+dnp3_ColdRestart="\x05\x64\x08\xc4\x01\x00\x02\x00\x39\x0d\xde\xce\x0d\x8E\x8B" 
+dnp3_Write="\x05\x64\x08\xc4\x01\x00\x02\x00\x39\x0d\xde\xce\x02\x9d\xf7" 
+dnp3_InitData="\x05\x64\x08\xc4\x01\x00\x02\x00\x39\x0d\xde\xce\x0f\x32\xe7" 
+dnp3_AppTermination="\x05\x64\x08\xc4\x01\x00\x02\x00\x39\x0d\xde\xce\x12\xf6\x45" 
+dnp3_DeleteFile="\x05\x64\x08\xc4\x01\x00\x02\x00\x39\x0d\xde\xce\x1b\x21\x8c" 
+dnp3_ReadRequest="056405c903000400bd71"
+
 HOST = "127.0.0.1"
 PORT = 20000
 BUFSIZ = 1024
-
-DEBUG=1
-
-ReadRequest="056405c903000400bd71"
-LinkReset=""
+TYPE = dnp3_ReadRequest
 
 def usage():
     print(sys.argv[0])
@@ -19,14 +29,28 @@ def usage():
     -h / --help :help
     -i / --ip :ip address
     -p / --prot :destination port
+    -t / --type: DNP3 PDU tye
+
+Defined DNP3 packet for parmater -t / --type:
+'1: Health check'
+'2: Warm Restart'
+'3: Cold Restart'
+'3: Cold Restart'
+'4: Write'
+'5: Initialize data'
+'6: App function termination'
+'7: Delete file'
+'8: Request Link'
+
     """)
+
 def debug():
     if DEBUG == 1:
         print ("debug: goes here...")
 
 def main(argv):
     try:
-        opts,args = getopt.getopt(sys.argv[1:],"hp:i:",["help","ip=","port="])
+        opts,args = getopt.getopt(sys.argv[1:],"hp:i:t:",["help","ip=","port=","type"])
 
     except getopt.GetoptError:
         usage()
@@ -42,6 +66,10 @@ def main(argv):
           elif opt in ("-p", "--port"):
              PORT= arg
              print  ("Destination PORT: %s"% PORT)
+          elif opt in ("-t", "--type"):
+             TYPE= arg
+             print  ("DNP3 type: %s"% TYPE)
+
 
     #debug()
  
