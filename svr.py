@@ -1,13 +1,13 @@
 #!/usr/bin/python
+# -*- coding: UTF-8 -*-
 from socket import *
 from time import time
 from binascii import hexlify, unhexlify
 from datetime import datetime,timedelta
+import getopt,sys,optparse
 
 HOST = ""
-PORT = 20000
 BUFSIZ = 1024
-ADDR = (HOST, PORT)
  
 ResponseLinkStatus="0564000b040003000000"
 dnp3_list=[
@@ -38,13 +38,43 @@ def debug():
     if DEBUG == 1:
         print ("debug: goes here...")
 
-def main():
+def usage():
+    print(sys.argv[0])
+    print(u"""
+    -h / --help :help
+    -p / --prot :destination port
+
+    """)
+ 
+def main(argv):
+    PORT = 20000
+
+    try:
+        opts,args = getopt.getopt(sys.argv[1:],"hp:",["help","port="])
+
+    except getopt.GetoptError:
+        usage()
+        sys.exit(1)
+
+    for opt, arg in opts:
+          if opt in ('-h', "--help"):
+             usage()
+             sys.exit(1)
+          elif opt in ("-p", "--port"):
+             PORT= int(arg)
+             print  ("Destination PORT: %s"% PORT)
+          else:
+             usage()
+             sys.exit(1)
+ 
+
     try:
         tcpSerSock = socket(AF_INET, SOCK_STREAM)
     except error, e:
         print  ("create socket failed %s" % e)
         sys.exit(1)
 
+    ADDR = (HOST, PORT)
     tcpSerSock.bind(ADDR)
     tcpSerSock.listen(5)
  
@@ -68,4 +98,4 @@ def main():
 
 if __name__ == "__main__":
 
-    main() 
+    main(sys.argv[1:])

