@@ -22,16 +22,24 @@ dnp3_list=[
            "056405c903000400bd71"            #dnp3_ReadRequest
     ]
 
+rcv_list=[
+           "0001000000060a0100000001",  #1 read coils
+           "0001000000060a0300050002",  #2 read holding reg
+           "0001000000060a0100000001",  #3 read coils
+           "0001000000060a0500020000",  #4 write signle coil
+           "000100000006ff020063001e",  #5 Read discrete Inputs
+           "297500000006ff0400300028",  #6 read input registers
+           "485a00000008ff0f000700030100", #7 write multiple coils
+    ]
 
-dnp3_resp=[
-    "", #dnp3_healthcheck
-    "05640a4401000a006e25c1c0810001c4fd", #dnp3_WarmRestart
-    "05640a4401000a006e25c0c0810001c2de", #dnp3_ColdRestart
-    "056405c903000400bd71", #dnp3_Write
-    "056408c401000200390ddece0f32e7", #dnp3_InitData
-    "056408c401000200390ddece12f645", #dnp3_AppTermination
-    "056408c401000200390ddece1b218c", #dnp3_DeleteFile
-    "056405c903000400bd71"            #dnp3_ReadRequest
+send_resp=[
+    "0001000000040a010100", #1 response to read coils
+    "0001000000070a030400090018", #2 response to  read holding reg
+    "0001000000040a010100", #3 response to read coils
+    "0001000000060a0500020000", #4 response to write single coils
+    "000000000007ff040400000000000100000007ff0204bd4f6739", #5 response to Read discrete Inputs
+    "297500000053ff0450303030303030303030303030303333333730000000000000000000000000000058303030303632353633353800000000000000000000000000000000000000000fe80000000600000000000000000000", #6 response to read input registers
+    "297a00000008ff0f000500010100" #7 response to write multiple coils
 ]
 
 
@@ -48,7 +56,7 @@ def usage():
     """)
  
 def main(argv):
-    global  HOST,BUFSIZ,PORT
+    global  HOST,BUFSIZ,PORT,send_resp, rcv_list
 
     try:
         opts,args = getopt.getopt(sys.argv[1:],"hp:",["help","port="])
@@ -90,10 +98,12 @@ def main(argv):
 
             print("Received DNP3 packet from %s: %s" % (addr[0], hexlify(rcv_msg)))
 
-            for idx in range (0, (len(dnp3_list))):
-                if hexlify(rcv_msg) == dnp3_list[idx - 1]:
-                    tcpCliSock.sendall(unhexlify(dnp3_resp[idx-1]))
-                    print ("Sending DNP3 Response to %s: %s" %(addr[0],dnp3_resp[idx -1]))
+            for idx in range (0, (len(rcv_list))):
+                print ("response idx: %s" % idx)
+                if hexlify(rcv_msg) == rcv_list[idx]:
+                    tcpCliSock.sendall(unhexlify(send_resp[idx]))
+                    print ("Sending DNP3 Response to %s: %s" %(addr[0],send_resp[idx]))
+                    break
  
         tcpCliSock.close()
 

@@ -6,42 +6,15 @@ from binascii import hexlify, unhexlify
 
 DEBUG = 1
 
-dnp3_HealthCheck="\x05\x64\x05\xc0\x01\x00\x00\x04\xe9\x21" 
-dnp3_HealthCheck="056405c001000004e921"
-dnp3_WarmRestart="\x05\x64\x08\xc4\x01\x00\x02\x00\x39\x0d\xde\xce\x0e\x6c\xd1" 
-dnp3_WarmRestart="056408c401000200390ddece0e6cd1" 
-dnp3_ColdRestart="\x05\x64\x08\xc4\x01\x00\x02\x00\x39\x0d\xde\xce\x0d\x8E\x8B" 
-dnp3_ColdRestart="056408c401000200390ddece0d8E8B" 
-dnp3_Write="\x05\x64\x08\xc4\x01\x00\x02\x00\x39\x0d\xde\xce\x02\x9d\xf7" 
-dnp3_Write="056408c401000200390ddece029df7" 
-dnp3_InitData="\x05\x64\x08\xc4\x01\x00\x02\x00\x39\x0d\xde\xce\x0f\x32\xe7" 
-dnp3_InitData="056408c401000200390ddece0f32e7" 
-dnp3_AppTermination="\x05\x64\x08\xc4\x01\x00\x02\x00\x39\x0d\xde\xce\x12\xf6\x45" 
-dnp3_AppTermination="056408c401000200390ddece12f645" 
-dnp3_DeleteFile="\x05\x64\x08\xc4\x01\x00\x02\x00\x39\x0d\xde\xce\x1b\x21\x8c" 
-dnp3_DeleteFile="056408c401000200390ddece1b218c" 
-dnp3_ReadRequest="056405c903000400bd71"
-
-dnp3_list=[
-           "056405c001000004e921",  #dnp3_healthcheck
-           "056408c40a000100fc42c0c00e7edc", #dnp3_WarmRestart
-           "056408c40a000100fc42c0c00d9c86", #dnp3_ColdRestart
-           "056412c403000400152dc1c10232010701fa7d0b460d01c863", #dnp3_Write
-           "056408c401000200390ddece0f32e7", #dnp3_InitData
-           "056408c401000200390ddece12f645", #dnp3_AppTermination
-           "056408c401000200390ddece1b218c", #dnp3_DeleteFile
-           "056405c903000400bd71"            #dnp3_ReadRequest
-    ]
 
 modbus_list=[
-           "2af100000006ff020063001e",  #modbus read decrete input
-           "05a000000006ff040001006305a100000006ff040029000205a200000006ff0408ab001605a300000006ff0408d20002", #modbus_Read Input Registers
-           "056408c40a000100fc42c0c00d9c86", #modbus
-           "056412c403000400152dc1c10232010701fa7d0b460d01c863", #modbus
-           "056408c401000200390ddece0f32e7", #modbus
-           "056408c401000200390ddece12f645", #modbus
-           "056408c401000200390ddece1b218c", #modbus
-           "056405c903000400bd71"            #modbus
+           "0001000000060a0100000001",  #read coils
+           "0001000000060a0300050002",  #read holding reg
+           "0001000000060a0100000001",  #read coils
+           "0001000000060a0500020000", #write signle coil
+           "000100000006ff020063001e", #Read discrete Inputs
+           "297500000006ff0400300028", #read input registers
+           "485a00000008ff0f000700030100", #write multiple coils
     ]
 
 
@@ -49,6 +22,7 @@ HOST = "127.0.0.1"
 PORT = 502
 BUFSIZ = 1024
 MODBUS_type = 8  #default to Request Link Status, if not specify MODBUS packet attack type [1..8]
+COUNT=1
 
 
 def usage():
@@ -58,6 +32,8 @@ def usage():
     -i / --ip :ip address
     -p / --prot :destination port
     -t / --type: MODBUS PDU tye
+    -c / --count: how many packets to send in a session 
+                  if count > 1, -t / --type would be invalid
 
     """)
     print_attack_type()
@@ -76,17 +52,16 @@ def debug(msg):
         print ("debug: %s" % msg)
 
 
-def send_modbus_packet(socket, modbus_type = 8):
-    global  HOST,BUFSIZ,PORT,MODBUS_type
+def send_modbus_packet(socket, modbus_type = 0):
+    global  HOST,BUFSIZ,PORT,MODBUS_type,COUNT,modbus_list
  
-    modbus_pdu = modbus_list[int(modbus_type) - 1]
-    print  ("Sending MODBUS packet to target %s: %s"%(HOST, modbus_pdu))
-    socket.sendall(unhexlify(modbus_pdu))
+    print  ("Sending MODBUS packet %s to target %s: %s"%(modbus_type, HOST, modbus_list[(modbus_type - 1)]))
+    socket.sendall(unhexlify(modbus_list[(modbus_type - 1)]))
 
     #get response
-    #if (8 == int(modbus_type)):
     resp = socket.recv(BUFSIZ)
     print("Received MODBUS Response from %s: %s" % (HOST, resp.encode('hex')))
+    #str1 = raw_input('any key to continue> ')
  
 
 def debug(msg):
@@ -94,10 +69,10 @@ def debug(msg):
         print ("debug: %s" % msg)
 
 def main(argv):
-    global  HOST,BUFSIZ,PORT,MODBUS_type
+    global  HOST,BUFSIZ,PORT,MODBUS_type,COUNT,modbus_list
 
     try:
-        opts,args = getopt.getopt(sys.argv[1:],"hp:i:t:",["help","ip=","port=","type="])
+        opts,args = getopt.getopt(sys.argv[1:],"hp:c:i:t:",["help","ip=","port=","type=","count="])
 
     except getopt.GetoptError:
         usage()
@@ -113,6 +88,8 @@ def main(argv):
           elif opt in ("-p", "--port"):
              PORT= arg
              print  ("Destination PORT: %s"% PORT)
+          elif opt in ("-c", "--count"):
+             COUNT= int(arg)
           elif opt in ("-t", "--type"):
              try:
                  MODBUS_type= int(arg)
@@ -122,10 +99,11 @@ def main(argv):
              if (MODBUS_type > len(modbus_list)):
                      print ("MODBUS type %s is out of range [1-%s]!" % (arg, len(modbus_list)))
                      sys.exit(1)
-             print  ("MODBUS injected type: %s"% MODBUS_type)
            
                 
 
+    print  ("MODBUS injected type: %s"% MODBUS_type)
+    print  ("Packet number: %s"% COUNT)
     try:
         tcpCliSock = socket(AF_INET, SOCK_STREAM)
     except error, e:
@@ -139,9 +117,24 @@ def main(argv):
     except error, e:
         print  ("Connect to target %s: %s error: %s" % (HOST, PORT, e))
  
-    send_modbus_packet(tcpCliSock, MODBUS_type)
-
-    str1 = raw_input('> ')
+    if ( COUNT == 1 ):
+        send_modbus_packet(tcpCliSock, MODBUS_type)
+    elif ( COUNT <= 0 ):
+        print  ("count %s invalid, should be >=1" % e)
+        sys.exit(1)
+    else:
+        print ("list length: %s" % len(modbus_list))
+        cnt=0
+        while (cnt < COUNT):
+            for idx in range (0, (len(modbus_list)) ):
+                print ("list idx: %s" % (idx))
+                send_modbus_packet(tcpCliSock, idx)
+                cnt += 1
+                print ("iteration cnt: %s" % (cnt + 1))
+                if (cnt >= COUNT):
+                    break
+                
+    str1 = raw_input('any key to continue> ')
     tcpCliSock.close()
 
 if __name__ == "__main__":
