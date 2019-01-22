@@ -55,8 +55,8 @@ def debug(msg):
 def send_modbus_packet(socket, modbus_type = 0):
     global  HOST,BUFSIZ,PORT,MODBUS_type,COUNT,modbus_list
  
-    print  ("Sending MODBUS packet %s to target %s: %s"%(modbus_type, HOST, modbus_list[(modbus_type - 1)]))
-    socket.sendall(unhexlify(modbus_list[(modbus_type - 1)]))
+    print  ("Sending MODBUS packet %s to target %s: %s"%(modbus_type, HOST, modbus_list[(modbus_type)]))
+    socket.sendall(unhexlify(modbus_list[(modbus_type)]))
 
     #get response
     resp = socket.recv(BUFSIZ)
