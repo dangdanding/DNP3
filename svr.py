@@ -25,21 +25,21 @@ dnp3_list=[
 rcv_list=[
            "0001000000060a0100000001",  #1 read coils
            "0001000000060a0300050002",  #2 read holding reg
-           "0001000000060a0100000001",  #3 read coils
            "0001000000060a0500020000",  #4 write signle coil
            "000100000006ff020063001e",  #5 Read discrete Inputs
            "297500000006ff0400300028",  #6 read input registers
            "485a00000008ff0f000700030100", #7 write multiple coils
+           "0001000000060a0100000001",  #3 read coils
     ]
 
 send_resp=[
     "0001000000040a010100", #1 response to read coils
     "0001000000070a030400090018", #2 response to  read holding reg
-    "0001000000040a010100", #3 response to read coils
     "0001000000060a0500020000", #4 response to write single coils
     "000000000007ff040400000000000100000007ff0204bd4f6739", #5 response to Read discrete Inputs
     "297500000053ff0450303030303030303030303030303333333730000000000000000000000000000058303030303632353633353800000000000000000000000000000000000000000fe80000000600000000000000000000", #6 response to read input registers
     "297a00000008ff0f000500010100" #7 response to write multiple coils
+    "0001000000040a010100", #3 response to read coils
 ]
 
 

@@ -10,11 +10,11 @@ DEBUG = 1
 modbus_list=[
            "0001000000060a0100000001",  #read coils
            "0001000000060a0300050002",  #read holding reg
-           "0001000000060a0100000001",  #read coils
            "0001000000060a0500020000", #write signle coil
            "000100000006ff020063001e", #Read discrete Inputs
            "297500000006ff0400300028", #read input registers
            "485a00000008ff0f000700030100", #write multiple coils
+           "0001000000060a0100000001",  #read coils
     ]
 
 
