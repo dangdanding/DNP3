@@ -3,6 +3,7 @@
 import getopt,sys,optparse
 from socket import *
 from binascii import hexlify, unhexlify
+import time
 
 DEBUG = 1
 
@@ -52,7 +53,7 @@ def debug(msg):
         print ("debug: %s" % msg)
 
 
-def send_modbus_packet(socket, modbus_type = 0):
+def send_modbus_packet(socket, modbus_type = 0, tm = 10):
     global  HOST,BUFSIZ,PORT,MODBUS_type,COUNT,modbus_list
  
     print  ("Sending MODBUS packet %s to target %s: %s"%(modbus_type, HOST, modbus_list[(modbus_type)]))
@@ -61,6 +62,8 @@ def send_modbus_packet(socket, modbus_type = 0):
     #get response
     resp = socket.recv(BUFSIZ)
     print("Received MODBUS Response from %s: %s" % (HOST, resp.encode('hex')))
+
+    time.sleep(tm)
     #str1 = raw_input('any key to continue> ')
  
 
