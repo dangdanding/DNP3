@@ -48,6 +48,7 @@ modbus_list=[
 HOST = "127.0.0.1"
 PORT = 502
 BUFSIZ = 1024
+MODBUS_type = 8  #default to Request Link Status, if not specify MODBUS packet attack type [1..8]
 
 
 def usage():
@@ -76,6 +77,7 @@ def debug(msg):
 
 
 def send_modbus_packet(socket, modbus_type = 8):
+    global  HOST,BUFSIZ,PORT,MODBUS_type
  
     modbus_pdu = modbus_list[int(modbus_type) - 1]
     print  ("Sending MODBUS packet to target %s: %s"%(HOST, modbus_pdu))
@@ -92,7 +94,7 @@ def debug(msg):
         print ("debug: %s" % msg)
 
 def main(argv):
-    MODBUS_type = 8  #default to Request Link Status, if not specify MODBUS packet attack type [1..8]
+    global  HOST,BUFSIZ,PORT,MODBUS_type
 
     try:
         opts,args = getopt.getopt(sys.argv[1:],"hp:i:t:",["help","ip=","port=","type="])

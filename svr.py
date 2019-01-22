@@ -8,6 +8,7 @@ import getopt,sys,optparse
 
 HOST = ""
 BUFSIZ = 1024
+PORT = 20000
  
 ResponseLinkStatus="0564000b040003000000"
 dnp3_list=[
@@ -47,7 +48,7 @@ def usage():
     """)
  
 def main(argv):
-    PORT = 20000
+    global  HOST,BUFSIZ,PORT
 
     try:
         opts,args = getopt.getopt(sys.argv[1:],"hp:",["help","port="])
@@ -62,7 +63,7 @@ def main(argv):
              sys.exit(1)
           elif opt in ("-p", "--port"):
              PORT= int(arg)
-             print  ("Destination PORT: %s"% PORT)
+             print  ("Listen on PORT: %s"% PORT)
           else:
              usage()
              sys.exit(1)
