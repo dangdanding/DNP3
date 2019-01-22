@@ -63,7 +63,7 @@ def send_modbus_packet(socket, modbus_type = 0, tm = 10):
     resp = socket.recv(BUFSIZ)
     print("Received MODBUS Response from %s: %s" % (HOST, resp.encode('hex')))
 
-    time.sleep(tm)
+    #time.sleep(tm)
     #str1 = raw_input('any key to continue> ')
  
 
