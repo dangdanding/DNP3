@@ -110,7 +110,7 @@ def main(argv):
              except: 
                  print ("MODBUS type %s is NOT recogizable!" % arg)
                  sys.exit(1)
-             if (MODBUS_type > len(modbus_list)):
+             if ( (MODBUS_type > len(modbus_list)) or (MODBUS_type<=0) ):
                      print ("MODBUS type %s is out of range [1-%s]!" % (arg, len(modbus_list)))
                      sys.exit(1)
            
@@ -140,11 +140,11 @@ def main(argv):
         print ("list length: %s" % len(modbus_list))
         cnt=0
         while (cnt < COUNT):
-            for idx in range (0, (len(modbus_list)) ):
-                print ("list idx: %s" % (idx))
+            for idx in range (1, (len(modbus_list)) ):
+                print ("list idx: %s" % (idx-1))
                 send_modbus_packet(tcpCliSock, idx)
                 cnt += 1
-                print ("iteration cnt: %s" % (cnt + 1))
+                print ("iteration cnt: %s" % (cnt))
                 if (cnt >= COUNT):
                     break
                 
