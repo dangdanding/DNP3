@@ -42,7 +42,7 @@ def usage():
     -h / --help :help
     -i / --ip :ip address
     -p / --prot :destination port
-    -t / --type: MODBUS PDU tye
+    -t / --type: attack PDU tye
     -c / --count: how many packets to send in a session 
                   if count > 1, -t / --type would be invalid
 
@@ -52,7 +52,7 @@ def usage():
 
 def print_attack_type():
     print(u"""
-Defined MODBUS attack type:
+Defined attack type:
 '1: Read Decrete Inputs'
 '2: Read Input Registers
     """)
@@ -66,12 +66,12 @@ def debug(msg):
 def send_pdu_packet(socket, send_list, attack_type = 0, tm = 10):
     global  HOST,BUFSIZ,PORT
  
-    print  ("Sending MODBUS packet %s to target %s: %s"%(attack_type, HOST, send_list[(attack_type) -1]))
+    print  ("Sending attack packet %s to target %s: %s"%(attack_type, HOST, send_list[(attack_type) -1]))
     socket.sendall(unhexlify(send_list[(attack_type) -1]))
 
     #get response
     resp = socket.recv(BUFSIZ)
-    print("Received MODBUS Response from %s: %s" % (HOST, resp.encode('hex')))
+    print("Received attack Response from %s: %s" % (HOST, resp.encode('hex')))
 
     #time.sleep(tm)
     #str1 = raw_input('any key to continue> ')
