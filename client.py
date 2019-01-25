@@ -8,14 +8,14 @@ import time
 DEBUG = 1
 
 dnp3_list=[
-           "056405c001000004e921",  #dnp3_HealthCheck
+           "056411c40a0001000615c0c0143c02063c03063c04067896",  #dnp3_Enable spontaneous message
            "056408c40a000100fc42c0c00e7edc", #dnp3_WarmRestart
            "056408c40a000100fc42c0c00d9c86", #dnp3_ColdRestart
            "056412c403000400152dc1c10232010701fa7d0b460d01c863", #dnp3_Write
            "056408c401000200390ddece0f32e7", #dnp3_InitData
            "056408c401000200390ddece12f645", #dnp3_AppTermination
            "056408c401000200390ddece1b218c", #dnp3_DeleteFile
-           "056405c903000400bd71"            #dnp3_ReadRequest
+           "056414c40a0001008fedc0c0013c02063c03063c04063c01068a51"            #dnp3_Read
     ]
 
 

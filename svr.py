@@ -10,18 +10,6 @@ HOST = ""
 BUFSIZ = 1024
 PORT = 20000
  
-ResponseLinkStatus="0564000b040003000000"
-dnp3_list=[
-           "056405c001000004e921",  #dnp3_HealthCheck
-           "056408c40a000100fc42c0c00e7edc", #dnp3_WarmRestart
-           "056408c40a000100fc42c0c00d9c86", #dnp3_ColdRestart
-           "056412c403000400152dc1c10232010701fa7d0b460d01c863", #dnp3_Write
-           "056408c401000200390ddece0f32e7", #dnp3_InitData
-           "056408c401000200390ddece12f645", #dnp3_AppTermination
-           "056408c401000200390ddece1b218c", #dnp3_DeleteFile
-           "056405c903000400bd71"            #dnp3_ReadRequest
-    ]
-
 rcv_list=[
            "0001000000060a0100000001",  #1 modbus read coils
            "0001000000060a0300050002",  #2 modbus read holding reg
@@ -30,14 +18,14 @@ rcv_list=[
            "297500000006ff0400300028",  #6 modbus read input registers
            "485a00000008ff0f000700030100", #7 modbus write multiple coils
            "0001000000060a0100000001",  #3 modbus read coils
-           "056405c001000004e921",  #dnp3_HealthCheck
+           "056411c40a0001000615c0c0143c02063c03063c04067896",  #dnp3_Enable spontaneous message
            "056408c40a000100fc42c0c00e7edc", #dnp3_WarmRestart
            "056408c40a000100fc42c0c00d9c86", #dnp3_ColdRestart
            "056412c403000400152dc1c10232010701fa7d0b460d01c863", #dnp3_Write
            "056408c401000200390ddece0f32e7", #dnp3_InitData
            "056408c401000200390ddece12f645", #dnp3_AppTermination
            "056408c401000200390ddece1b218c", #dnp3_DeleteFile
-           "056405c903000400bd71",            #dnp3_ReadRequest
+           "056414c40a0001008fedc0c0013c02063c03063c04063c01068a51"            #dnp3_Read
  
     ]
 
@@ -49,14 +37,14 @@ send_resp=[
     "297500000053ff0450303030303030303030303030303333333730000000000000000000000000000058303030303632353633353800000000000000000000000000000000000000000fe80000000600000000000000000000", #6 response to read input registers
     "297a00000008ff0f000500010100", #7 response to write multiple coils
     "0001000000040a010100", #3 response to read coils
-    "056405c001000004e921", #dnp3_healthcheck
+    "05640a4401000a006e25d2c08100000204", #dnp3_Enable spontaneous message response
     "05640a4401000a006e25c1c0810001c4fd", #dnp3_WarmRestart
     "05640a4401000a006e25c0c0810001c2de", #dnp3_ColdRestart
     "056405c903000400bd71", #dnp3_Write
     "056408c401000200390ddece0f32e7", #dnp3_InitData
     "056408c401000200390ddece12f645", #dnp3_AppTermination
     "056408c401000200390ddece1b218c", #dnp3_DeleteFile
-    "056405c903000400bd71"            #dnp3_ReadRequest
+    "005056c00008000c29243a0a08004500004b3449400040060c90c0a83c82c0a83c014e20c5a2244febad0084555c501800e5a90f000005641a4401000a00af5d9402000000000200000000020000000066420200000000f3b9"            #dnp3_Read Response
 ]
 
 
