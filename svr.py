@@ -104,6 +104,7 @@ def main(argv):
 
     try:
         tcpSerSock = socket(AF_INET, SOCK_STREAM)
+        tcpSerSock.setsockopt(SOL_SOCKET,SO_REUSEADDR, 1) 
     except error, e:
         print  ("create socket failed %s" % e)
         sys.exit(1)
